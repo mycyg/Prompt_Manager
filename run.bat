@@ -1,10 +1,13 @@
 @echo off
 setlocal
 
-REM 设置项目目录为批处理文件所在的目录
+REM Change the code page to UTF-8 to handle special characters in paths
+chcp 65001 > nul
+
+REM Set the project directory to the location of this batch file
 set "PROJ_DIR=%~dp0"
 
-REM 检查Python是否安装
+REM Check for Python
 python --version >nul 2>nul
 if %errorlevel% neq 0 (
     echo Python is not installed or not in PATH.
@@ -13,10 +16,10 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM 设置虚拟环境的目录
+REM Set the virtual environment directory
 set "VENV_DIR=%PROJ_DIR%venv"
 
-REM 如果虚拟环境不存在，则创建它
+REM Create the virtual environment if it doesn't exist
 if not exist "%VENV_DIR%\Scripts\activate" (
     echo Creating virtual environment...
     python -m venv "%VENV_DIR%"
@@ -27,7 +30,7 @@ if not exist "%VENV_DIR%\Scripts\activate" (
     )
 )
 
-REM 激活虚拟环境并安装依赖
+REM Activate the virtual environment and install dependencies
 echo Activating virtual environment and installing dependencies...
 call "%VENV_DIR%\Scripts\activate.bat"
 
