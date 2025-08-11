@@ -58,9 +58,12 @@ class SettingsDialog(QDialog):
         self.layout.addRow("LLM API Key:", self.api_key_input)
         self.layout.addRow("LLM 模型名称:", self.model_input)
         self.embedding_base_url_input = QLineEdit(self)
+        self.embedding_api_key_input = QLineEdit(self)
+        self.embedding_api_key_input.setEchoMode(QLineEdit.Password)
         self.embedding_model_input = QLineEdit(self)
         self.layout.addRow(QLabel("<b>Embedding (语义搜索)</b>"))
         self.layout.addRow("Embedding API Base URL:", self.embedding_base_url_input)
+        self.layout.addRow("Embedding API Key:", self.embedding_api_key_input)
         self.layout.addRow("Embedding 模型名称:", self.embedding_model_input)
         self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel, self)
         self.buttons.accepted.connect(self.accept)
@@ -77,6 +80,7 @@ class SettingsDialog(QDialog):
                 self.api_key_input.setText(config.get('api_key', ''))
                 self.model_input.setText(config.get('model', ''))
                 self.embedding_base_url_input.setText(config.get('embedding_base_url', ''))
+                self.embedding_api_key_input.setText(config.get('embedding_api_key', ''))
                 self.embedding_model_input.setText(config.get('embedding_model', ''))
             except (json.JSONDecodeError, IOError):
                 pass
@@ -87,6 +91,31 @@ class SettingsDialog(QDialog):
             'api_key': self.api_key_input.text(),
             'model': self.model_input.text(),
             'embedding_base_url': self.embedding_base_url_input.text(),
+            'embedding_api_key': self.embedding_api_key_input.text(),
+            'embedding_model': self.embedding_model_input.text(),
+        }
+
+    def load_settings(self):
+        if os.path.exists(CONFIG_FILE):
+            try:
+                with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                self.base_url_input.setText(config.get('base_url', ''))
+                self.api_key_input.setText(config.get('api_key', ''))
+                self.model_input.setText(config.get('model', ''))
+                self.embedding_base_url_input.setText(config.get('embedding_base_url', ''))
+                self.embedding_api_key_input.setText(config.get('embedding_api_key', ''))
+                self.embedding_model_input.setText(config.get('embedding_model', ''))
+            except (json.JSONDecodeError, IOError):
+                pass
+
+    def get_settings(self):
+        return {
+            'base_url': self.base_url_input.text(),
+            'api_key': self.api_key_input.text(),
+            'model': self.model_input.text(),
+            'embedding_base_url': self.embedding_base_url_input.text(),
+            'embedding_api_key': self.embedding_api_key_input.text(),
             'embedding_model': self.embedding_model_input.text(),
         }
 
