@@ -500,26 +500,27 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("预览结果已复制到剪贴板！", 3000)
 
     def detect_variables(self):
+        # Clear existing variable widgets and the tracking dictionary
+        while self.variable_layout.count():
+            child = self.variable_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        self.variable_inputs.clear()
+
         content = self.prompt_content_edit.toPlainText()
         variables = sorted(list(set(re.findall(r'{{(.+?)}}', content))))
+
         if not variables:
             self.right_panel_widget.setVisible(False)
-            self.variable_inputs.clear()
             return
+
         self.right_panel_widget.setVisible(True)
-        existing_vars = list(self.variable_inputs.keys())
-        for var_name in existing_vars:
-            if var_name not in variables:
-                widget_to_remove = self.variable_inputs.pop(var_name)
-                self.variable_layout.removeRow(widget_to_remove)
-                widget_to_remove.deleteLater()
         for var_name in variables:
-            if var_name not in self.variable_inputs:
-                line_edit = QLineEdit()
-                line_edit.textChanged.connect(self.update_preview)
-                line_edit.textChanged.connect(self.mark_dirty)
-                self.variable_layout.addRow(f"{{{{{var_name}}}}}", line_edit)
-                self.variable_inputs[var_name] = line_edit
+            line_edit = QLineEdit()
+            line_edit.textChanged.connect(self.update_preview)
+            line_edit.textChanged.connect(self.mark_dirty)
+            self.variable_layout.addRow(f"{{{{{var_name}}}}}", line_edit)
+            self.variable_inputs[var_name] = line_edit
 
     def update_preview(self):
         template = self.prompt_content_edit.toPlainText()
