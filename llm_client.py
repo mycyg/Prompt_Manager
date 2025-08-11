@@ -7,27 +7,31 @@ CONFIG_FILE = 'config.json'
 def get_llm_config():
     """从配置文件加载LLM和Embedding模型的设置。"""
     if not os.path.exists(CONFIG_FILE):
-        return None, None, None, None, None
+        return None, None, None, None, None, None
     try:
         with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
             config = json.load(f)
         return (
-            config.get('base_url'), 
-            config.get('api_key'), 
+            config.get('base_url'),
+            config.get('api_key'),
             config.get('model'),
             config.get('embedding_base_url'),
+            config.get('embedding_api_key'),
             config.get('embedding_model')
         )
     except (IOError, json.JSONDecodeError):
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
 def get_embedding(text):
     """获取给定文本的embedding向量。"""
-    _, _, _, embedding_base_url, embedding_model = get_llm_config()
-    if not all([embedding_base_url, embedding_model]):
-        raise ValueError("错误：请先在‘设置’中配置Embedding模型的URL和名称。")
+    _, _, _, embedding_base_url, embedding_api_key, embedding_model = get_llm_config()
+    if not all([embedding_base_url, embedding_api_key, embedding_model]):
+        raise ValueError("错误：请先在‘设置’中配置Embedding模型的URL、API Key和名称。")
 
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {embedding_api_key}"
+    }
     data = {"input": text, "model": embedding_model}
 
     try:
@@ -46,9 +50,8 @@ def get_embedding(text):
 
 def call_llm(system_prompt, user_prompt):
     """调用LLM API并返回结果。"""
-    base_url, api_key, model, _, _ = get_llm_config()
+    base_url, api_key, model, _, _, _ = get_llm_config()
     if not all([base_url, api_key, model]):
-        # 返回一个特定的错误标识，而不是字符串
         raise ValueError("LLM配置不完整，请检查API设置。")
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
@@ -71,7 +74,6 @@ def generate_prompt(requirement):
     system_prompt = "你是一个提示词工程专家。请根据用户的需求，创建一个高质量、清晰、可复用的提示词模板。模板中应使用双花括号 `{{变量名}}` 来标识变量。"
     return call_llm(system_prompt, requirement)
 
-# 接受自定义的优化指令 (system_prompt)
 def optimize_prompt(prompt_content, custom_system_prompt):
     """使用用户自定义的指令优化一个已有的提示词。"""
     return call_llm(custom_system_prompt, prompt_content)
