@@ -46,10 +46,20 @@
 为了使用AI生成、优化和语义搜索功能，您需要配置您的API信息。
 
 1.  启动应用后，点击界面右上角的“**设置**”按钮。
-2.  在弹出的窗口中，填入您的API信息：
-    - **LLM (生成/优化)**: 用于生成和优化提示词的大语言模型API，需兼容OpenAI的API格式。
-    - **Embedding (语义搜索)**: 用于将文本转换为向量的Embedding模型API。
+2.  在弹出的窗口中，填入您的API信息。**请注意：** 应用会自动在您填写的URL后拼接 `/v1/chat/completions` 或 `/v1/embeddings`，因此您只需填写API的基础地址。
+
+    - **LLM (生成/优化)**: 
+      - **LLM API Base URL**: `https://api.openai.com/` 或 `https://your-proxy-domain.com/`
+      - **LLM API Key**: 您的API密钥。
+      - **LLM 模型名称**: `gpt-4`, `gpt-3.5-turbo`
+
+    - **Embedding (语义搜索)**: 
+      - **Embedding API Base URL**: `https://api.openai.com/` 或 `https://your-proxy-domain.com/`
+      - **Embedding API Key**: 您的API密钥 (如果与LLM Key不同，请单独填写)。
+      - **Embedding 模型名称**: `text-embedding-ada-002`
+
 3.  点击“保存”。所有配置将保存在项目根目录的 `config.json` 文件中。
+
 
 ## 📖 操作指南
 
